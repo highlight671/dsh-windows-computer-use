@@ -1,0 +1,14 @@
+node_modules/
+.venv/
+dist/
+*.tgz
+*.zip
+__pycache__/
+.env
+.env.*
+*.log
+installation.json
+protocol-verification.json
+screenshots/
+attachments/
+.DS_Store

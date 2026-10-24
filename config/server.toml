@@ -1,0 +1,6 @@
+[server]
+transport = "stdio"
+
+[control]
+mouse_takeover_units = 120
+mouse_takeover_pixels = 120
