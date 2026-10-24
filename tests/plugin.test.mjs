@@ -12,11 +12,12 @@ test('bundle registers a usable Skill, literal guardrails and a child MCP plugin
     skills: { registerProvider: factory => calls.providers.push(factory()) },
     plugin: (module, config) => calls.children.push({ module, config }),
   };
-  const mcpClient = {};
+  const mcpClient = { async apply() {}, inject: ['tools'] };
   const transport = createTransport(path.resolve('test-runtime'));
   await mountPlugin(ctx, { mcpClient, transport });
   assert.equal(calls.children.length, 1);
-  assert.equal(calls.children[0].module, mcpClient);
+  assert.equal(calls.children[0].module.name, 'windows-computer-use-mcp-background');
+  assert.equal(calls.children[0].module.inject, mcpClient.inject);
   assert.deepEqual(calls.children[0].config, transport);
   assert.equal(calls.sections.length, 1);
   assert.equal(calls.sections[0].interpolate, false);
@@ -42,6 +43,6 @@ test('bundle manifest resolves its actual entry and patch', async () => {
   const manifest = JSON.parse(await readFile(new URL('../package.json', import.meta.url)));
   await access(new URL('../' + manifest.main, import.meta.url));
   await access(new URL('../' + manifest.dsh.bundle.patch, import.meta.url));
-  assert.equal(manifest.engines.dsh, '=0.2.1-rc.2');
+  assert.equal(manifest.engines.dsh, '=0.2.1-rc.3');
   for (const hook of ['preinstall', 'install', 'postinstall', 'prepare']) assert(!(hook in manifest.scripts));
 });

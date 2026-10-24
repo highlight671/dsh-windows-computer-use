@@ -11,6 +11,10 @@ jobs:
         with:
           node-version: '24'
       - name: Unit and installation-guard tests
-        run: node --test tests/runtime.test.mjs tests/plugin.test.mjs
+        run: node --test tests/*.test.mjs
       - name: Preview installation without applying it
         run: node scripts/setup-runtime.mjs
+      - name: Install pinned host peers for native integration tests
+        run: npm install --ignore-scripts --package-lock=false
+      - name: Native prompt and lifecycle tests without desktop input
+        run: node scripts/verify-native.mjs

@@ -2,7 +2,7 @@
 
 为 DeepSeek Harness 提供 Windows 桌面观察、点击、输入与结果验收，附带 `windows-computer-use` Skill。底层使用 [Windows-MCP](https://github.com/CursorTouch/Windows-MCP)，通过 Harness 原生 MCP 桥接连接。这是社区集成项目。
 
-**0.1.0 预览版。** 已有本机的 Harness 记事本端到端验收经验；独立插件的验证范围见下方。首次使用请先做安全验收。
+**0.1.1 预览版，适配 Harness 0.2.1-rc.3。** MCP 在后台初始化，普通聊天与代码请求无需等待；仅在需要电脑操作时检查工具就绪。首次使用请先做安全验收。
 
 项目地址：[highlight671/dsh-windows-computer-use](https://github.com/highlight671/dsh-windows-computer-use) · [版本下载](https://github.com/highlight671/dsh-windows-computer-use/releases)
 
@@ -40,19 +40,23 @@ Windows-MCP 接入 Harness 已有 [helloHub1212/dsh-windows-mcp](https://github.
 
 ## 支持范围
 
-- Windows x64；本机基础验收在 Windows 11、Harness **0.2.1-rc.2** 完成。
+- Windows x64；本版本原生组件与真实 MCP 连接验证使用 Windows 11、Harness **0.2.1-rc.3**。仍使用 rc.2 的用户保留 [v0.1.0](https://github.com/highlight671/dsh-windows-computer-use/releases/tag/v0.1.0)，不要直接升级本版本。
 - Node.js 22+；安装脚本需已有 **uv 0.13.5**，从 [uv 官方发行页](https://github.com/astral-sh/uv/releases/tag/0.13.5) 获取。
 - 私有运行时：Python **3.14.9**、Windows-MCP **0.8.8**。Python 依赖版本在 `requirements-windows.txt` 固定；这是版本锁定清单，不是全量带哈希的供应链锁文件。
 - 模型需支持工具调用；视觉验收还需当前模型路由与 Harness 附件功能支持图片输入。
 
 固定开放九个工具：`App`、`Snapshot`、`Screenshot`、`Click`、`Type`、`Scroll`、`Wait`、`WaitFor`、`ControlStatus`。使用 stdio，不启动 HTTP 监听；关闭 Windows-MCP 匿名遥测。不开放 MCP 的 PowerShell、Registry、FileSystem、Process、Clipboard、Shortcut 接口。
 
+插件另提供一个本地工具 `windows_computer_use_ready`，仅等待 MCP 初始化并核对九个工具是否已注册，不执行截图、点击或输入，也不授予控制权。普通任务不调用它；桌面任务先调用它，再在下一步使用九个 MCP 工具并检查 `ControlStatus`。这是为了解决首次模型请求取工具快照时，后台服务可能尚未就绪的问题。
+
+初始化失败会在诊断和桌面就绪检查中报告，不拦截普通模型请求。连接、重连、实际工具注册及退出清理由 Harness 原生 MCP 实现负责。运行时缺失或校验失败仍会明确拒绝加载插件。
+
 ## 安装
 
 先下载并解压发布页的 ZIP，或克隆对应版本：
 
 ```powershell
-git clone --branch v0.1.0 https://github.com/highlight671/dsh-windows-computer-use.git
+git clone --branch v0.1.1 https://github.com/highlight671/dsh-windows-computer-use.git
 cd dsh-windows-computer-use
 ```
 
@@ -90,7 +94,7 @@ $runtime = Join-Path $env:USERPROFILE '.dsh\tools\dsh-windows-computer-use'
 在 Harness 的插件管理页中安装**本仓库的绝对目录**，或使用固定版本的 Git 安装地址：
 
 ```text
-git+https://github.com/highlight671/dsh-windows-computer-use.git#v0.1.0
+git+https://github.com/highlight671/dsh-windows-computer-use.git#v0.1.1
 ```
 
 `package.json` 声明了 `dsh.bundle.patch`，因此它是 Harness 可识别的组合包插件，而不只是配置片段。插件没有安装生命周期脚本，不会在加载时自行下载软件；上面的独立运行时仍需先准备好。
@@ -135,15 +139,19 @@ git+https://github.com/highlight671/dsh-windows-computer-use.git#v0.1.0
 
 停用不删除 Python 运行时、备份或其他配置。本版本不提供递归卸载脚本。升级需先审查新版本；现有运行时目录不会被安装脚本覆盖。自定义新运行时目录时按上文设置 `runtimeRoot`。
 
+从 v0.1.0 升级到 v0.1.1 不需要重装同版本运行时，安装地址改为 `#v0.1.1` 并按宿主提示重载。不要同时启用旧手工 MCP 条目或另一份插件。完整变更见 [更新记录](CHANGELOG.md)。
+
 ## 验证与开发
 
 ```powershell
-node --test tests/runtime.test.mjs tests/plugin.test.mjs
+node --test tests/*.test.mjs
 ```
 
-测试覆盖路径与链接拒绝、安装默认不修改磁盘、拒绝覆盖已有目录、运行时完整性检查、工具范围、Skill 与提示词注册。另已实跑全新运行时安装、只读 MCP 探测，以及使用宿主原生 API 的插件连接与释放测试。详细范围见 [验证记录](docs/VALIDATION.md)；这些检查不代表已经完成独立插件的 GUI 安装验收，也不取代实际界面验收。
+测试覆盖路径与链接拒绝、安装默认不修改磁盘、拒绝覆盖已有目录、运行时完整性检查、工具范围、Skill 与提示词注册，以及后台初始化时普通请求继续、桌面就绪等待、取消、失败隔离与退出清理。
 
-兼容依据：Harness 0.2.1-rc.2 的 `dsh-mcp-client`、`dsh-skill`、`dsh-system-prompt`、`dsh-app-boot` 公开包文档和本机基础验收。其他 Harness 或 Windows-MCP 版本需重新验证。
+安装了对应宿主 peer dependencies 的开发环境还可运行 `node scripts/verify-native.mjs`，验证真实 Cordis、ToolRuntime、SkillRegistry 与 SystemPrompt 下的首次工具发现和生命周期。使用 `--host-root` 指定宿主包根目录、`--runtime` 指定已有 MCP 运行时，可额外做只读连接及 `ControlStatus` 检查；不指定运行时就不启动 Windows-MCP。读取 Electron 的 app.asar 包需要在其 Node 模式下运行脚本。
+
+详细范围见 [验证记录](docs/VALIDATION.md)。独立插件的原生接入验证不等于 GUI 安装验收，也不取代实际界面验收。兼容范围限定为已验证的 Harness rc.3；其他宿主或 Windows-MCP 版本需重新验证。
 
 ## 许可证与发布内容
 

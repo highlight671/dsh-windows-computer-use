@@ -1,6 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { loadRuntime } from './runtime.mjs';
+import { backgroundMcpPlugin } from './background-mcp.mjs';
 
 export const name = 'windows-computer-use';
 export const inject = ['tools', 'skills', 'systemPrompt'];
@@ -36,7 +37,7 @@ export async function mountPlugin(ctx, { mcpClient, transport, rank = 600 }) {
   }));
   // Cordis owns the child plugin and effect disposers. Disabling the parent
   // removes its prompt/skill contributions and closes the MCP connection.
-  return ctx.plugin(mcpClient, transport);
+  return ctx.plugin(backgroundMcpPlugin(mcpClient), transport);
 }
 
 export async function apply(ctx, config = {}) {
