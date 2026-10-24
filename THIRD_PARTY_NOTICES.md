@@ -2,6 +2,8 @@
 
 本插件是社区集成项目，不代表 DeepSeek 或 Windows-MCP 官方。电脑控制由 [CursorTouch/Windows-MCP](https://github.com/CursorTouch/Windows-MCP) 提供，本插件负责 Harness 接入、固定工具范围、操作 Skill 和安装/验收流程。
 
+截图、点击、输入、无障碍树读取及上游控制协调能力的作者与版权归属 Windows-MCP 上游。本项目的新增内容是 Harness 插件封装、配置选择、安装/检查脚本、中文操作规则、验收与收尾流程及相应测试。本仓库根目录的 LICENSE 适用于这些新增内容，不替代上游组件各自的许可证和版权声明。
+
 Windows-MCP 0.8.8 通过 PyPI 单独安装；本仓库不包含其源码、Python 运行时、二进制包或依赖副本。Windows-MCP 的 MIT 许可如下：
 
 ```text

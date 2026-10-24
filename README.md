@@ -6,6 +6,20 @@
 
 项目地址：[highlight671/dsh-windows-computer-use](https://github.com/highlight671/dsh-windows-computer-use) · [版本下载](https://github.com/highlight671/dsh-windows-computer-use/releases)
 
+## 项目定位与上游声明
+
+本项目提供面向 DeepSeek Harness 的插件集成与操作流程封装，各部分来源如下：
+
+| 来源 | 提供的能力 |
+| --- | --- |
+| [CursorTouch/Windows-MCP](https://github.com/CursorTouch/Windows-MCP) | Windows 界面与无障碍树读取、截图、点击、输入等桌面控制，以及上游实现的用户空闲与紧急接管保护。 |
+| [deepseek-ai/deepseek-harness](https://github.com/deepseek-ai/deepseek-harness) | 插件宿主、MCP 桥接、工具图片的会话处理、Skill 注册和提示词 API。 |
+| 本插件新增 | Harness 原生组合包封装、MCP 配置与九工具范围选择、独立运行时安装与检查脚本、中文操作/验收/收尾 Skill，以及对应测试和验证记录。 |
+
+上游桌面控制能力的作者与版权归属上游。本项目通过 PyPI 安装 Windows-MCP 0.8.8，不包含其源码、二进制或依赖副本。Windows-MCP 的 **MIT 许可原文及 `Copyright (c) 2025 JEOMON GEORGE`** 完整保留在 [第三方声明](THIRD_PARTY_NOTICES.md)；本仓库的 [MIT 许可证](LICENSE) 适用于本项目新增内容。上游各组件继续遵循各自许可。
+
+这是独立社区项目，与 DeepSeek、Windows-MCP 官方不存在授权、背书或隶属关系。
+
 ## 插件和 Skill 分别做什么
 
 | 部分 | 作用 |
